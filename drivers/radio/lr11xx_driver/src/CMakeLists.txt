@@ -1,6 +1,6 @@
-# @file lr11xx_driver_module.cmake
+# @file
 #
-# @brief Defines CMake source files and include directories for this module
+# @brief Sets CMake target_sources and target_include_directories
 #
 # --- The Clear BSD License ---
 # Copyright Semtech Corporation 2021. All rights reserved.
@@ -30,20 +30,14 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-set(LR11XX_DRIVER_MODULE_C_SOURCES
-  ${CMAKE_CURRENT_LIST_DIR}/lr11xx_bootloader.c
-  ${CMAKE_CURRENT_LIST_DIR}/lr11xx_crypto_engine.c
-  ${CMAKE_CURRENT_LIST_DIR}/lr11xx_driver_version.c
-  ${CMAKE_CURRENT_LIST_DIR}/lr11xx_gnss.c
-  ${CMAKE_CURRENT_LIST_DIR}/lr11xx_lr_fhss.c
-  ${CMAKE_CURRENT_LIST_DIR}/lr11xx_radio.c
-  ${CMAKE_CURRENT_LIST_DIR}/lr11xx_radio_timings.c
-  ${CMAKE_CURRENT_LIST_DIR}/lr11xx_rttof.c
-  ${CMAKE_CURRENT_LIST_DIR}/lr11xx_regmem.c
-  ${CMAKE_CURRENT_LIST_DIR}/lr11xx_system.c
-  ${CMAKE_CURRENT_LIST_DIR}/lr11xx_wifi.c
-  )
+include(lr11xx_driver_module.cmake)
 
-set(LR11XX_DRIVER_MODULE_C_INCLUDES
-  ${CMAKE_CURRENT_LIST_DIR}/.
-  )
+target_sources(${LR11XX_DRIVER_MODULE_TARGET}
+  PRIVATE
+  ${LR11XX_DRIVER_MODULE_C_SOURCES}
+)
+
+target_include_directories(${LR11XX_DRIVER_MODULE_TARGET}
+  PUBLIC
+  ${LR11XX_DRIVER_MODULE_C_INCLUDES}
+)

@@ -33,7 +33,8 @@
         rf-sw-rx-mode = <LR11XX_DIO5>;
         rf-sw-tx-mode = <(LR11XX_DIO5 | LR11XX_DIO6)>;
         rf-sw-tx-hp-mode = <LR11XX_DIO6>;
-        rf-sw-gnss-mode = <LR11XX_DIO7>;s
+        rf-sw-gnss-mode = <LR11XX_DIO7>;
+    };
 };
 
 &pinctrl {

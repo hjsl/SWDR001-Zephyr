@@ -172,7 +172,8 @@ void start_scan( void )
 static void fetch_and_print_results( void )
 {
     LOG_INF( "== Scan #%d ==", number_of_scan );
-
+    int ret;
+/*
     lr11xx_gnss_timings_t gnss_timing = { 0 };
     int ret = lr11xx_gnss_get_timings( context, &gnss_timing );
     if(ret)
@@ -183,7 +184,7 @@ static void fetch_and_print_results( void )
     LOG_INF( "Timings:" );
     LOG_INF( "  - radio: %u ms", gnss_timing.radio_ms );
     LOG_INF( "  - computation: %u ms", gnss_timing.computation_ms );
-
+*/
     uint8_t                          n_sv_detected            = 0;
     lr11xx_gnss_detected_satellite_t sv_detected[GNSS_MAX_SV] = { 0 };
     ret = lr11xx_gnss_get_nb_detected_satellites( context, &n_sv_detected );

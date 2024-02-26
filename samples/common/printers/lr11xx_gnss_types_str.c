@@ -25,14 +25,19 @@ const char* lr11xx_gnss_search_mode_to_str( const lr11xx_gnss_search_mode_t valu
 {
     switch( value )
     {
-    case LR11XX_GNSS_OPTION_DEFAULT:
+    case LR11XX_GNSS_OPTION_LOW_EFFORT:
     {
-        return ( const char* ) "LR11XX_GNSS_OPTION_DEFAULT";
+        return ( const char* ) "LR11XX_GNSS_OPTION_LOW_EFFORT";
     }
 
-    case LR11XX_GNSS_OPTION_BEST_EFFORT:
+    case LR11XX_GNSS_OPTION_MID_EFFORT:
     {
-        return ( const char* ) "LR11XX_GNSS_OPTION_BEST_EFFORT";
+        return ( const char* ) "LR11XX_GNSS_OPTION_MID_EFFORT";
+    }
+
+    case LR11XX_GNSS_OPTION_HIGH_EFFORT:
+    {
+        return ( const char* ) "LR11XX_GNSS_OPTION_HIGH_EFFORT";
     }
 
     default:

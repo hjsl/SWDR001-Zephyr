@@ -7,10 +7,12 @@ import os
 import json
 from base64 import decodebytes
 
-URL = 'https://gls.loracloud.com/api/v3/almanac/full'
-AUTH_TOKEN = 'AQEAdv9jq5dthzVHYZMRxDEg6WRUIaz590FXPuAfP+1jddncGODv'
+URL = 'https://mgs.loracloud.com/api/v3/almanac/full'
+#AUTH_TOKEN = 'AQEAdv9jq5dthzVHYZMRxDEg6WRUIaz590FXPuAfP+1jddncGODv'
+AUTH_TOKEN = 'AQEAAP+vQhSLRLBeYzy5TZUhfV1scL5BJPy5aZDDqzdN2OjRxrIf'
 
 response = requests.get(URL, headers = {'Ocp-Apim-Subscription-Key': AUTH_TOKEN})
+print(response)
 
 
 raw_almanac = response.json()['result']['almanac_image'].encode()

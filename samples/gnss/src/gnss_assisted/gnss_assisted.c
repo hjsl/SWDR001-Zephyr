@@ -163,7 +163,7 @@ void gnss_init( const void* context )
 
 void gnss_call_scan( const void* context )
 {
-    int ret = lr11xx_gnss_scan_assisted( context, get_gps_time_now( ), gnss_configuration.effort_mode,
+    int ret = lr11xx_gnss_scan( context, get_gps_time_now( ), gnss_configuration.effort_mode,
                                                  gnss_configuration.input_parameters, gnss_configuration.max_sv );
     if(ret)
     {

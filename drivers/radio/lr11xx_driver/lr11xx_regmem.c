@@ -153,6 +153,11 @@ lr11xx_status_t lr11xx_regmem_write_regmem32( const void* context, const uint32_
     uint8_t cbuffer[LR11XX_REGMEM_WRITE_REGMEM32_CMD_LENGTH];
     uint8_t cdata[LR11XX_REGMEM_BUFFER_SIZE_MAX];
 
+    if( length > LR11XX_REGMEM_MAX_WRITE_READ_WORDS )
+    {
+        return LR11XX_STATUS_ERROR;
+    }
+
     lr11xx_regmem_fill_cbuffer_cdata_opcode_address_data( cbuffer, cdata, LR11XX_REGMEM_WRITE_REGMEM32_OC, address,
                                                           buffer, length );
 
@@ -163,13 +168,17 @@ lr11xx_status_t lr11xx_regmem_write_regmem32( const void* context, const uint32_
 lr11xx_status_t lr11xx_regmem_read_regmem32( const void* context, const uint32_t address, uint32_t* buffer,
                                              const uint8_t length )
 {
-    uint8_t         cbuffer[LR11XX_REGMEM_READ_REGMEM32_CMD_LENGTH];
-    lr11xx_status_t status = LR11XX_STATUS_ERROR;
+    uint8_t cbuffer[LR11XX_REGMEM_READ_REGMEM32_CMD_LENGTH] = { 0 };
+
+    if( length > LR11XX_REGMEM_MAX_WRITE_READ_WORDS )
+    {
+        return LR11XX_STATUS_ERROR;
+    }
 
     lr11xx_regmem_fill_cbuffer_opcode_address_length( cbuffer, LR11XX_REGMEM_READ_REGMEM32_OC, address, length );
 
-    status = ( lr11xx_status_t ) lr11xx_hal_read( context, cbuffer, LR11XX_REGMEM_READ_REGMEM32_CMD_LENGTH,
-                                                  ( uint8_t* ) buffer, length * sizeof( uint32_t ) );
+    const lr11xx_status_t status = ( lr11xx_status_t ) lr11xx_hal_read(
+        context, cbuffer, LR11XX_REGMEM_READ_REGMEM32_CMD_LENGTH, ( uint8_t* ) buffer, length * sizeof( uint32_t ) );
 
     if( status == LR11XX_STATUS_OK )
     {

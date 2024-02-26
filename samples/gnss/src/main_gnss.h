@@ -54,12 +54,12 @@ extern "C" {
 /**
  * @brief Assistance position latitude
  */
-#define GNSS_ASSISTANCE_POSITION_LATITUDE ( 45.1 )
+#define GNSS_ASSISTANCE_POSITION_LATITUDE ( 52.1 )
 
 /**
  * @brief Assistance position longitude
  */
-#define GNSS_ASSISTANCE_POSITION_LONGITUDE ( 5.7 )
+#define GNSS_ASSISTANCE_POSITION_LONGITUDE ( 4.3 )
 
 /**
  * @brief Scan mode
@@ -69,7 +69,7 @@ extern "C" {
 /**
  * @brief Effort mode
  */
-#define GNSS_EFFORT_MODE ( LR11XX_GNSS_OPTION_BEST_EFFORT )
+#define GNSS_EFFORT_MODE ( LR11XX_GNSS_OPTION_HIGH_EFFORT )
 
 /**
  * @brief GNSS input parameters
