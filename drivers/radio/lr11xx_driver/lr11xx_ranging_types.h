@@ -1,7 +1,7 @@
 /**
- * @file      lr11xx_rttof_types.h
+ * @file      lr11xx_ranging_types.h
  *
- * @brief     Round-Trip Time of Flight (RTToF) driver types for LR11XX
+ * @brief     Ranging driver types for LR11XX
  *
  * The Clear BSD License
  * Copyright Semtech Corporation 2022. All rights reserved.
@@ -32,8 +32,8 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef LR11XX_RTTOF_TYPES_H
-#define LR11XX_RTTOF_TYPES_H
+#ifndef LR11XX_RANGING_TYPES_H
+#define LR11XX_RANGING_TYPES_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -60,13 +60,13 @@ extern "C" {
  */
 
 /**
- * @brief Round-Trip Time of Flight result types
+ * @brief Ranging result types
  */
-typedef enum lr11xx_rttof_result_type_e
+typedef enum lr11xx_ranging_result_type_e
 {
-    LR11XX_RTTOF_RESULT_TYPE_RAW = 0,  ///< Raw distance result
-    LR11XX_RTTOF_RESULT_TYPE_RSSI,     ///< RTToF RSSI
-} lr11xx_rttof_result_type_t;
+    LR11XX_RANGING_RESULT_TYPE_RAW = 0,  ///< Raw distance result
+    LR11XX_RANGING_RESULT_TYPE_RSSI,     ///< Ranging RSSI
+} lr11xx_ranging_result_type_t;
 
 /*
  * -----------------------------------------------------------------------------
@@ -77,6 +77,6 @@ typedef enum lr11xx_rttof_result_type_e
 }
 #endif
 
-#endif  // LR11XX_RTTOF_TYPES_H
+#endif  // LR11XX_RANGING_TYPES_H
 
 /* --- EOF ------------------------------------------------------------------ */
