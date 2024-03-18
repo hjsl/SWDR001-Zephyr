@@ -124,7 +124,7 @@ static void lr11xx_board_event_callback(const struct device *dev, struct gpio_ca
 		gpio_pin_interrupt_configure_dt(&config->event, GPIO_INT_LEVEL_INACTIVE);
 		/* Call provided callback */
 #ifdef CONFIG_LR11XX_EVENT_TRIGGER_OWN_THREAD
-		k_sem_give(&data->gpio_sem);
+		k_sem_give(&data->trig_sem);
 #elif CONFIG_LR11XX_EVENT_TRIGGER_GLOBAL_THREAD
 		k_work_submit(&data->work);
 #endif
@@ -137,7 +137,7 @@ static void lr11xx_board_event_callback(const struct device *dev, struct gpio_ca
 static void lr11xx_thread(struct lr11xx_hal_context_data_t *data)
 {
 	while (1) {
-		k_sem_take(&data->gpio_sem, K_FOREVER);
+		k_sem_take(&data->trig_sem, K_FOREVER);
 		if (data->event_interrupt_cb) {
 			data->event_interrupt_cb(data->lr11xx_dev);
 		}
@@ -230,7 +230,7 @@ static int lr11xx_init(const struct device *dev)
 
 	// LNA enable pin
 	if (config->lna_en.port) {
-		ret = gpio_pin_configure_dt(&config->lna_en, GPIO_OUTPUT_INACTIVE);
+		ret = gpio_pin_configure_dt(&config->lna_en, GPIO_OUTPUT_ACTIVE);
 		if (ret < 0) {
 			LOG_ERR("Could not configure lna enable gpio");
 			return ret;
