@@ -19,6 +19,8 @@
 #include "lr11xx_radio_types_str.h"
 #include "lr11xx_board.h"
 
+#include "smtc_dbpsk.h"
+
 #include <zephyr/logging/log.h>
 LOG_MODULE_REGISTER(lr11xx_common, CONFIG_LR11XX_LOG_LEVEL);
 
@@ -43,6 +45,8 @@ LOG_MODULE_REGISTER(lr11xx_common, CONFIG_LR11XX_LOG_LEVEL);
  */
 
 static volatile bool irq_fired = false;
+
+static lr11xx_system_irq_mask_t irq_mask;
 
 /*
  * -----------------------------------------------------------------------------
@@ -338,6 +342,85 @@ void apps_common_lr11xx_radio_init( const void* context )
     }
 }
 
+void apps_common_lr11xx_radio_dbpsk_init(const void* context, const uint8_t payload_len)
+{
+    int err;
+
+    const lr11xx_board_pa_pwr_cfg_t* pa_pwr_cfg = lr11xx_board_get_pa_pwr_cfg(SIGFOX_UPLINK_RF_FREQ_IN_HZ, SIGFOX_TX_OUTPUT_POWER_DBM);
+    if( pa_pwr_cfg == NULL ) {
+        LOG_ERR( "Invalid target frequency or power level");
+        return;
+    }
+
+    LOG_INF( "Sigfox parameters:" );
+    LOG_INF( "   Packet type   = %s", lr11xx_radio_pkt_type_to_str(LR11XX_RADIO_PKT_TYPE_BPSK));
+    LOG_INF( "   RF frequency  = %u Hz", SIGFOX_UPLINK_RF_FREQ_IN_HZ);
+    LOG_INF( "   Output power  = %i dBm", SIGFOX_TX_OUTPUT_POWER_DBM);
+
+    err = lr11xx_radio_set_pkt_type( context, LR11XX_RADIO_PKT_TYPE_BPSK);
+    if (err) {
+        LOG_ERR("Failed to set packet type, err: %d", err);
+        return;
+    }
+
+    err = lr11xx_radio_set_rf_freq(context, SIGFOX_UPLINK_RF_FREQ_IN_HZ);
+    if (err) {
+        LOG_ERR("Failed to set rf freq, err: %d", err);
+        return;
+    }
+
+    err = lr11xx_radio_set_rssi_calibration(context, lr11xx_board_get_rssi_calibration_table(SIGFOX_UPLINK_RF_FREQ_IN_HZ));
+    if (err) {
+        LOG_ERR("Failed to set rssi calibration, err: %d", err);
+        return;
+    }
+
+    err = lr11xx_radio_set_pa_cfg(context, &(pa_pwr_cfg->pa_config));
+    if (err) {
+        LOG_ERR("Failed to set pa cfg, err: %d", err);
+        return;
+    }
+
+    const lr11xx_radio_mod_params_bpsk_t bpsk_mod_params = {
+        .br_in_bps   = BPSK_BITRATE_IN_BPS,
+        .pulse_shape = LR11XX_RADIO_DBPSK_PULSE_SHAPE,
+    };
+
+    static lr11xx_radio_pkt_params_bpsk_t bpsk_pkt_params = {
+        .pld_len_in_bytes = 0,  // Will be initialized in radio init
+        .ramp_up_delay    = 0,
+        .ramp_down_delay  = 0,
+        .pld_len_in_bits  = 0,  // Will be initialized in radio init 
+    };
+
+    err = lr11xx_radio_set_bpsk_mod_params(context, &bpsk_mod_params);
+
+    bpsk_pkt_params.pld_len_in_bytes = smtc_dbpsk_get_pld_len_in_bytes( payload_len << 3 );
+    bpsk_pkt_params.pld_len_in_bits  = smtc_dbpsk_get_pld_len_in_bits( payload_len << 3 );
+
+    if( BPSK_BITRATE_IN_BPS == 100 )
+    {
+        bpsk_pkt_params.ramp_up_delay   = LR11XX_RADIO_SIGFOX_DBPSK_RAMP_UP_TIME_100_BPS;
+        bpsk_pkt_params.ramp_down_delay = LR11XX_RADIO_SIGFOX_DBPSK_RAMP_DOWN_TIME_100_BPS;
+    }
+    else if( BPSK_BITRATE_IN_BPS == 600 )
+    {
+        bpsk_pkt_params.ramp_up_delay   = LR11XX_RADIO_SIGFOX_DBPSK_RAMP_UP_TIME_600_BPS;
+        bpsk_pkt_params.ramp_down_delay = LR11XX_RADIO_SIGFOX_DBPSK_RAMP_DOWN_TIME_600_BPS;
+    }
+    else
+    {
+        bpsk_pkt_params.ramp_up_delay   = LR11XX_RADIO_SIGFOX_DBPSK_RAMP_UP_TIME_DEFAULT;
+        bpsk_pkt_params.ramp_down_delay = LR11XX_RADIO_SIGFOX_DBPSK_RAMP_DOWN_TIME_DEFAULT;
+    }
+
+    err = lr11xx_radio_set_bpsk_pkt_params(context, &bpsk_pkt_params);
+    if (err) {
+        LOG_ERR("Failed to set bpsk pkt params, err: %d", err);
+        return;
+    }
+}
+
 void apps_common_lr11xx_receive( const void* context, uint8_t* buffer, uint8_t* size )
 {
     lr11xx_radio_rx_buffer_status_t rx_buffer_status;
@@ -371,8 +454,9 @@ void apps_common_lr11xx_receive( const void* context, uint8_t* buffer, uint8_t* 
     }
 }
 
-void apps_common_lr11xx_enable_irq( const void* context )
+void apps_common_lr11xx_enable_irq( const void* context, lr11xx_system_irq_mask_t irq_filter_mask  )
 {
+	irq_mask = irq_filter_mask;
     lr11xx_board_attach_interrupt(context, radio_on_dio_irq);
     lr11xx_board_enable_interrupt(context);
 }
@@ -552,7 +636,8 @@ void print_gfsk_configuration( void )
 void radio_on_dio_irq( const struct device *dev )
 {
     irq_fired = true;
-    LOG_DBG("Irq fired");
+    LOG_INF("Irq fired");
+    apps_common_lr11xx_irq_process(dev, irq_mask);
 }
 void on_tx_done( void )
 {

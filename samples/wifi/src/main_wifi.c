@@ -59,6 +59,9 @@
 #include "wifi_scan_country_code.h"
 #include "wifi_scan_country_code_time_limit.h"
 
+#include "sigfox_ep_api.h"
+#include "sigfox_rc.h"
+
 #include <zephyr/logging/log.h>
 LOG_MODULE_REGISTER(main);
 
@@ -177,6 +180,10 @@ int main( void )
 {
     int ret = 0;
 
+    SIGFOX_EP_API_config_t lib_config;
+
+    lib_config.rc = &SIGFOX_RC1;
+
     LOG_INF( "===== LR11xx %s example =====\n", get_interface_name( ) );
 
     apps_common_lr11xx_system_init( ( void* ) context );
@@ -197,7 +204,7 @@ int main( void )
         LOG_ERR("Failed to set dio irq params.");
     }
 
-    apps_common_lr11xx_enable_irq(context);
+    apps_common_lr11xx_enable_irq(context, IRQ_MASK);
 
     // Check that the Wi-Fi format and Wi-Fi scan mode are compatible before starting the example
     const bool is_compatible = lr11xx_wifi_are_scan_mode_result_format_compatible( WIFI_SCAN_MODE, WIFI_RESULT_FORMAT );

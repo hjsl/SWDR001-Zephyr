@@ -13,7 +13,7 @@
 LOG_MODULE_REGISTER(main);
 
 #if CONFIG_UPDATE_LR1110
-#include "lr1110_transceiver_0307.h"
+#include "lr1110_transceiver_0308.h"
 #elif CONFIG_UPDATE_LR1120
 #include "lr1120_transceiver_0101.h"
 #else

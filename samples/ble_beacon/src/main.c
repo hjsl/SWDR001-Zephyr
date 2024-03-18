@@ -9,6 +9,7 @@
 #include "apps_common.h"
 #include "lr11xx_radio.h"
 #include "lr11xx_system.h"
+#include "lr11xx_board.h"
 
 #include <zephyr/logging/log.h>
 LOG_MODULE_REGISTER(main);
@@ -68,6 +69,7 @@ static uint8_t pdu_buf[39] = {
     0x00,                                           /* Hint (0x00) */
 };   
 
+/* mm4HWxe */
 static char public_key[28] = {
     0xe4, 0x72, 0x8b, 0x6f, 0x40, 0xff, 0xb3, 0x37, 0x9b, 0x3b, 0x63, 0x91,
     0xaa, 0x5b, 0x7f, 0xa6, 0x2b, 0x7a, 0x89, 0xcd, 0x76, 0x10, 0x03, 0x02,
@@ -106,22 +108,21 @@ static void beacon_tx_work_handler(struct k_work *work)
 
     // uint32_t start = k_uptime_get_32();
     for (int i = 0; i < ARRAY_SIZE(ble_beacon_channels); i++) {
-        // k_sem_take(&beacon_tx_sem, K_FOREVER);
+        k_sem_take(&beacon_tx_sem, K_FOREVER);
         LOG_INF("Sending beacon on channel %d", ble_beacon_channels[i]);
         int err = lr11xx_radio_cfg_bluetooth_low_energy_beaconning_compatibility(context,
                 ble_beacon_channels[i],
                 pdu_buf,
                 sizeof(pdu_buf));
         lr11xx_radio_set_tx(context, 0);
-        // LOG_INF("err: %d", err);
-        // k_sleep(K_USEC(500));
+        LOG_INF("err: %d", err);
     }
     // uint32_t end = k_uptime_get_32();
     // uint32_t took = end - start;
     
     uint32_t adv_delay_ms = sys_rand32_get() % 10;
 
-    k_work_reschedule(&beacon_tx_work, K_MSEC(BLE_BEACON_PERIOD_MS - 10 + adv_delay_ms));
+    k_work_reschedule(&beacon_tx_work, K_MSEC(BLE_BEACON_PERIOD_MS + adv_delay_ms));
 }
 
 void on_tx_done(void)
@@ -143,6 +144,27 @@ void on_tx_done(void)
     // }
 }
 
+static void radio_on_dio_irq(const struct device *dev)
+{
+	LOG_INF("done");
+
+        lr11xx_system_irq_mask_t irq_regs;
+        lr11xx_system_get_and_clear_irq_status( context, &irq_regs );
+
+        LOG_INF( "Interrupt flags = 0x%08X", irq_regs );
+
+        irq_regs &= IRQ_MASK;
+
+        LOG_INF( "Interrupt flags (after filtering) = 0x%08X", irq_regs );
+
+        if( ( irq_regs & LR11XX_SYSTEM_IRQ_TX_DONE ) == LR11XX_SYSTEM_IRQ_TX_DONE )
+        {
+            LOG_INF( "Tx done" );
+            on_tx_done( );
+        }
+
+}
+
 void main(void)
 {
     int ret = 0;
@@ -156,14 +178,14 @@ void main(void)
     /* Check version - expect LR1110 or LR1120 */
     lr11xx_system_version_t version = { 0 };
     lr11xx_system_get_version(context, &version);
-    if ((version.type != LR11XX_SYSTEM_VERSION_TYPE_LR1110) &&
-        (version.type != LR11XX_SYSTEM_VERSION_TYPE_LR1120)) {
+    if ((version.type != 0x01) &&
+        (version.type != 0x02)) {
         LOG_ERR("BLE beacon example application requires LR1110 or LR1120");
         return;
     }
 
     /* Initialize the PLL for the LR1110 */
-    if (version.type == LR11XX_SYSTEM_VERSION_TYPE_LR1110) {
+    if (version.type == 0x01) {
         LOG_INF("Calibrating PLL for 2.4GHz");
         lr11xx_radio_set_rf_freq((void*) context, 2400000000);
         lr11xx_system_calibrate(context, 0x20);        
@@ -198,8 +220,9 @@ void main(void)
 
     update_pdu(pdu_buf, public_key);
 
-    // apps_common_lr11xx_enable_irq(context);
-
+    //apps_common_lr11xx_enable_irq(context);
+    lr11xx_board_attach_interrupt(context, radio_on_dio_irq);
+    lr11xx_board_enable_interrupt(context);
 
     k_work_schedule(&beacon_tx_work, K_NO_WAIT);
 
@@ -212,8 +235,8 @@ void main(void)
     //     LOG_ERR("Failed to set TX mode, ret: %d", ret);
     // }
     
-    // while (true) {
+    //while (true) {
     //     apps_common_lr11xx_irq_process(context, IRQ_MASK);
-    //     k_sleep(K_MSEC(20));
-    // }
+    //     k_sleep(K_MSEC(1));
+    //}
 }

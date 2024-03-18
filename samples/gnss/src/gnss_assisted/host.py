@@ -39,6 +39,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
     with Serial(args.port, 115200, timeout=1, write_timeout=0) as ser:
         date_gps = GnssDateLocBuilder.get_now_gps()
+        print(date_gps)
         ser.write(f"{date_gps}\n".encode("UTF-8"))
         while True:
             line = ser.readline().decode("UTF-8")

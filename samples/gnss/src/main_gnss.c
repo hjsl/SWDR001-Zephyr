@@ -148,16 +148,16 @@ int main( void )
         LOG_ERR("Failed to set dio irq params.");
     }
 
-    apps_common_lr11xx_enable_irq(context);
+    apps_common_lr11xx_enable_irq(context, IRQ_MASK);
 
     gnss_init( context );
     start_scan( );
 
-    while( 1 )
-    {
-        apps_common_lr11xx_irq_process( context, IRQ_MASK );
-        k_sleep(K_MSEC(1));
-    }
+    //while( 1 )
+    //{
+    //    apps_common_lr11xx_irq_process( context, IRQ_MASK );
+    //    k_sleep(K_MSEC(1));
+    //}
 }
 
 void start_scan( void )
@@ -173,9 +173,9 @@ static void fetch_and_print_results( void )
 {
     LOG_INF( "== Scan #%d ==", number_of_scan );
     int ret;
-/*
+
     lr11xx_gnss_timings_t gnss_timing = { 0 };
-    int ret = lr11xx_gnss_get_timings( context, &gnss_timing );
+    ret = lr11xx_gnss_get_timings( context, &gnss_timing );
     if(ret)
     {
         LOG_ERR("Failed to get timings.");
@@ -184,7 +184,7 @@ static void fetch_and_print_results( void )
     LOG_INF( "Timings:" );
     LOG_INF( "  - radio: %u ms", gnss_timing.radio_ms );
     LOG_INF( "  - computation: %u ms", gnss_timing.computation_ms );
-*/
+
     uint8_t                          n_sv_detected            = 0;
     lr11xx_gnss_detected_satellite_t sv_detected[GNSS_MAX_SV] = { 0 };
     ret = lr11xx_gnss_get_nb_detected_satellites( context, &n_sv_detected );
@@ -235,12 +235,7 @@ static void fetch_and_print_results( void )
     }
 
     //Print nav message
-    LOG_INF( "NAV message:");
-    for(uint8_t i = 0; i < result_size; i++)
-    {
-        printk("%x ", nav[i]);
-    }
-    printk("\n");
+    LOG_HEXDUMP_INF(nav, result_size, "NAV message:");
 }
 
 bool can_execute_next_scan( void )

@@ -163,7 +163,7 @@ void gnss_init( const void* context )
 
 void gnss_call_scan( const void* context )
 {
-    int ret = lr11xx_gnss_scan( context, get_gps_time_now( ), gnss_configuration.effort_mode,
+    int ret = lr11xx_gnss_scan_assisted( context, get_gps_time_now( ), gnss_configuration.effort_mode,
                                                  gnss_configuration.input_parameters, gnss_configuration.max_sv );
     if(ret)
     {
@@ -191,13 +191,14 @@ uint32_t get_gps_delay_from_serial( )
 
         LOG_INF("Send gps time!");
 
-        uart_data_t *buf = k_fifo_get(&fifo_uart_rx_data, K_FOREVER);
-        if(buf)
-        {
-            gps_time = strtol(buf->data, NULL, 10);
-            LOG_INF("Got GPS time: %d", gps_time);
-            k_free(buf);
-        }
+        //uart_data_t *buf = k_fifo_get(&fifo_uart_rx_data, K_FOREVER);
+        //if(buf)
+        //{
+        //    gps_time = strtol(buf->data, NULL, 10);
+        //    LOG_INF("Got GPS time: %d", gps_time);
+        //    k_free(buf);
+        //}
+	gps_time = 1394203569;
     }
     else
     {
@@ -247,6 +248,7 @@ static void rc_uart_cb(const struct device *dev, void *user_data)
 	ARG_UNUSED(user_data);
 
 	uart_irq_update(dev);
+	LOG_WRN("got uart data");
 
 	if (uart_irq_rx_ready(dev))
 	{

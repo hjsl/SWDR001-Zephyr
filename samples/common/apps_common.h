@@ -53,6 +53,14 @@ void apps_common_lr11xx_system_init( const struct device* context );
  */
 void apps_common_lr11xx_radio_init( const void* context );
 
+/*!
+ * @brief Initialize the radio configuration of the transceiver for dbpsk only
+ *
+ * @param [in] context  Pointer to the radio context
+ * @param [in] context  Length ot the payload
+ */
+void apps_common_lr11xx_radio_dbpsk_init(const void* context, const uint8_t payload_len);
+
 /**
  * @brief Fetch the version from the LR11xx and print it on the log interface
  *
@@ -78,7 +86,7 @@ void apps_common_lr11xx_receive( const void* context, uint8_t* buffer, uint8_t* 
  * @warning This function must be called to enable hardware interruption and 'irq_fired' flag will be triggered to
  * indicate interruption, then 'apps_common_lr11xx_irq_process' in main loop will be executed.
  */
-void apps_common_lr11xx_enable_irq( const void* context );
+void apps_common_lr11xx_enable_irq( const void* context, lr11xx_system_irq_mask_t irq_filter_mask );
 
 /*!
  * @brief Interface to lr11xx interrupt processing routine

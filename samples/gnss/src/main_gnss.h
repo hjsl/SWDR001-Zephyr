@@ -69,7 +69,7 @@ extern "C" {
 /**
  * @brief Effort mode
  */
-#define GNSS_EFFORT_MODE ( LR11XX_GNSS_OPTION_HIGH_EFFORT )
+#define GNSS_EFFORT_MODE ( LR11XX_GNSS_OPTION_BEST_EFFORT )
 
 /**
  * @brief GNSS input parameters
