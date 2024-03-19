@@ -15,7 +15,7 @@
 #include "manuf/rf_api.h"
 
 #include <zephyr/logging/log.h>
-LOG_MODULE_REGISTER(main);
+LOG_MODULE_REGISTER(main_sigfox);
 
 #define SIGFOX_PAYLOAD_LENGTH 26
 #define IRQ_MASK LR11XX_SYSTEM_IRQ_TX_DONE
@@ -31,9 +31,17 @@ static void uplink_cplt_cb(void)
 static volatile sfx_bool sigfox_process_flag = SFX_FALSE;
 static volatile sfx_bool sigfox_message_completion_flag = SFX_FALSE;
 
+static void sigfox_process_work_fn(struct k_work *work)
+{
+    LOG_INF("SIGFOX_process_callback");
+    SIGFOX_EP_API_status_t status = SIGFOX_EP_API_process();
+}
+
+K_WORK_DEFINE(sigfox_process_work, sigfox_process_work_fn);
+
 // Process callback.
 void SIGFOX_process_callback(void) {
-    sigfox_process_flag = SFX_TRUE;
+    k_work_submit(&sigfox_process_work);
 }
 
 // Message completion callback.
@@ -45,7 +53,8 @@ static void send_application_message(void)
 {
     #define APP_UL_PAYLOAD_SIZE 9
 
-    SIGFOX_EP_API_status_t sigfox_ep_api_status;
+    LOG_INF("send_application_message");
+    SIGFOX_EP_API_status_t status;
 
     SIGFOX_EP_API_application_message_t application_message;
     SIGFOX_EP_API_message_status_t message_status;
@@ -67,20 +76,13 @@ static void send_application_message(void)
 
     application_message.bidirectional_flag = SFX_FALSE;
 
-    sigfox_ep_api_status = SIGFOX_EP_API_send_application_message(&application_message);
+    status = SIGFOX_EP_API_send_application_message(&application_message);
 
-    LOG_INF("Status: %d", sigfox_ep_api_status);
-}
-
-static void process_cb(void)
-{
-    LOG_INF("process_cb");
+    LOG_INF("status: %d", status);
 }
 
 int main( void )
 {
-    int err;
-
     LOG_INF( "===== LR11xx Sigfox PHY example =====" );
 
     SIGFOX_EP_API_config_t lib_config;
@@ -110,33 +112,6 @@ int main( void )
     LOG_HEXDUMP_INF(initial_pac, initial_pac_size_bytes, "initial_pac:");
 
     send_application_message();
-
-    while (true) {
-        // Check Sigfox process flag.
-        if (sigfox_process_flag == SFX_TRUE) {
-            // Call process handler.
-            sigfox_ep_api_status = SIGFOX_EP_API_process();
-            // Clear flag.
-	    sigfox_process_flag = SFX_FALSE;
-        } else {
-            sigfox_ep_api_status = SIGFOX_EP_API_process();
-	}
-        // Check message completion.
-        if (sigfox_message_completion_flag == SFX_TRUE) {
-            // Clear flag.
-            sigfox_message_completion_flag = SFX_FALSE;
-            // Read message status to check if message sequence was successful.
-            message_status = SIGFOX_EP_API_get_message_status();
-            if (message_status.field.dl_frame != 0) {
-                // Read downlink data.
-                //sigfox_ep_api_status = SIGFOX_EP_API_get_dl_payload(app_dl_payload,
-                //                                                    SIGFOX_DL_PAYLOAD_SIZE_BYTES,
-                //                                                    &dl_rssi_dbm);
-            }
-            // Process applicative state machine accordingly...
-        }
-	k_sleep(K_MSEC(1000));
-    }
 }
 
 void on_tx_done( void )
