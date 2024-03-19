@@ -8,6 +8,6 @@ project(sigfox)
 zephyr_compile_options(-fdiagnostics-color=always)
 
 zephyr_include_directories(.)
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../common src/common)
+#add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../common src/common)
 
-target_sources(app PRIVATE src/main_sigfox.c)
+target_sources(app PRIVATE src/main_sigfox.c src/lr11xx_rf_api.c src/smtc_dbpsk.c)

@@ -19,8 +19,6 @@
 #include "lr11xx_radio_types_str.h"
 #include "lr11xx_board.h"
 
-#include "smtc_dbpsk.h"
-
 #include <zephyr/logging/log.h>
 LOG_MODULE_REGISTER(lr11xx_common, CONFIG_LR11XX_LOG_LEVEL);
 

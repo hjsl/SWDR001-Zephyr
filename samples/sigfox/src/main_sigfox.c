@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "apps_common.h"
 #include "lr11xx_radio.h"
 #include "lr11xx_system.h"
 #include "lr11xx_board.h"
@@ -21,34 +20,7 @@ LOG_MODULE_REGISTER(main);
 #define SIGFOX_PAYLOAD_LENGTH 26
 #define IRQ_MASK LR11XX_SYSTEM_IRQ_TX_DONE
 
-// Application payload = 0x01
-const uint8_t sample0[] = { 0xaa, 0xaa, 0xa0, 0x8d, 0x01, 0x05, 0x98, 0xba, 0xdc, 0xfe, 0x01, 0x9a, 0x09, 0xfe, 0x04 };
-
-const struct device *context = DEVICE_DT_GET(DT_NODELABEL(lr11xx));
-
 static void send_frame( uint8_t *payload, uint8_t payload_len );
-
-RF_API_status_t RF_API_send(RF_API_tx_data_t *tx_data) {
-#ifdef ERROR_CODES
-        RF_API_status_t status = RF_API_SUCCESS;
-#endif
-    LOG_HEXDUMP_INF(tx_data->bitstream, tx_data->bitstream_size_bytes, "bitstream:");
-
-    send_frame(tx_data->bitstream, tx_data->bitstream_size_bytes);
-
-    status = RF_API_process();
-
-    RETURN();
-}
-
-RF_API_status_t RF_API_process(void) {
-#ifdef ERROR_CODES
-        RF_API_status_t status = RF_API_SUCCESS;
-#endif
-	LOG_INF("here2");
-
-        RETURN();
-}
 
 static void uplink_cplt_cb(void)
 {
@@ -110,24 +82,6 @@ int main( void )
     int err;
 
     LOG_INF( "===== LR11xx Sigfox PHY example =====" );
-
-    apps_common_lr11xx_system_init( ( void* ) context );
-    apps_common_lr11xx_fetch_and_print_version( ( void* ) context );
-    apps_common_lr11xx_radio_dbpsk_init( ( void* ) context, SIGFOX_PAYLOAD_LENGTH );
-
-    err = lr11xx_system_set_dio_irq_params(context, LR11XX_SYSTEM_IRQ_TX_DONE, 0);
-    if (err) {
-        LOG_ERR("Failed to set dio irq params, err: %d", err);
-	return err;
-    }
-
-    err = lr11xx_system_clear_irq_status(context, LR11XX_SYSTEM_IRQ_ALL_MASK);
-    if (err) {
-        LOG_ERR("Failed to clear irq status, err: %d", err);
-	return err;
-    }
-
-    apps_common_lr11xx_enable_irq(context, LR11XX_SYSTEM_IRQ_TX_DONE);
 
     SIGFOX_EP_API_config_t lib_config;
     SIGFOX_EP_API_status_t sigfox_ep_api_status;
@@ -201,9 +155,9 @@ void send_frame( uint8_t *payload, uint8_t payload_len )
 
     smtc_dbpsk_encode_buffer( payload, payload_len << 3, &frame_buffer[0] );
 
-    lr11xx_regmem_write_buffer8( context, &frame_buffer[0], smtc_dbpsk_get_pld_len_in_bytes( payload_len << 3 ) );
+    //lr11xx_regmem_write_buffer8( context, &frame_buffer[0], smtc_dbpsk_get_pld_len_in_bytes( payload_len << 3 ) );
 
     LOG_HEXDUMP_INF(&frame_buffer[0], smtc_dbpsk_get_pld_len_in_bytes( payload_len << 3 ), "frame_buffer:");
 
-    lr11xx_radio_set_tx(context, 0);
+    //lr11xx_radio_set_tx(context, 0);
 }
