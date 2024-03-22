@@ -293,8 +293,8 @@ RF_API_status_t LR11XX_RF_API_init(RF_API_radio_parameters_t *radio_parameters) 
             lr11xx_radio_mod_params_gfsk.fdev_in_hz = radio_parameters->deviation_hz;
             lr11xx_radio_mod_params_gfsk.pulse_shape = LR11XX_RADIO_GFSK_PULSE_SHAPE_BT_1;
             lr11xx_radio_mod_params_gfsk.bw_dsb_param = LR11XX_RADIO_GFSK_BW_4800;
-            lr11xx_status = lr11xx_radio_set_gfsk_mod_params(SFX_NULL, &lr11xx_radio_mod_params_gfsk);
-            if ( lr11xx_status != LR11XX_STATUS_OK) {
+            lr11xx_status = lr11xx_radio_set_gfsk_mod_params(device, &lr11xx_radio_mod_params_gfsk);
+            if (lr11xx_status != LR11XX_STATUS_OK) {
 		    LOG_ERR("Faied to set gfsk modulation params.");
                 return LR11XX_RF_API_ERROR_CHIP_RADIO_REG;
 	        }
