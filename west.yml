@@ -68,6 +68,7 @@ manifest:
           # - fff
           - hal_nordic
           - hal_st # Hal for ST's sensors, not for MCU's
+          - hal_stm32
           # - hal_wurthelektronik
           # - liblc3
           # - libmetal

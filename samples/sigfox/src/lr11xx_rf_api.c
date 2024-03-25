@@ -104,7 +104,7 @@ RF_API_status_t LR11XX_RF_API_process(void)
     }
 
     if (lr11xx_system_irq_mask & LR11XX_SYSTEM_IRQ_TX_DONE) {
-        LOG_INF("tx_cplt");
+        LOG_INF("tx_done");
         // lr11xx_hw_api_status = LR11XX_HW_API_tx_off();
         lr11xx_ctx.tx_done_flag = 1;
         if (lr11xx_ctx.callbacks.tx_cplt_cb) {
@@ -114,6 +114,7 @@ RF_API_status_t LR11XX_RF_API_process(void)
     }
 
     if (lr11xx_system_irq_mask & LR11XX_SYSTEM_IRQ_RX_DONE) {
+        LOG_INF("rx_done");
         //lr11xx_hw_api_status = LR11XX_HW_API_rx_off();
         lr11xx_ctx.rx_done_flag = 1;
         if (lr11xx_ctx.callbacks.rx_data_received_cb)
@@ -121,6 +122,7 @@ RF_API_status_t LR11XX_RF_API_process(void)
     }
 
     if (lr11xx_system_irq_mask & LR11XX_SYSTEM_IRQ_ERROR) {
+        LOG_ERR("irq error");
         lr11xx_ctx.error_flag = 1;
         if (lr11xx_ctx.callbacks.error_cb) {
             lr11xx_ctx.callbacks.error_cb(LR11XX_RF_API_ERROR_CHIP_IRQ);
@@ -294,7 +296,7 @@ RF_API_status_t LR11XX_RF_API_init(RF_API_radio_parameters_t *radio_parameters) 
             lr11xx_radio_mod_params_gfsk.pulse_shape = LR11XX_RADIO_GFSK_PULSE_SHAPE_BT_1;
             lr11xx_radio_mod_params_gfsk.bw_dsb_param = LR11XX_RADIO_GFSK_BW_4800;
             lr11xx_status = lr11xx_radio_set_gfsk_mod_params(device, &lr11xx_radio_mod_params_gfsk);
-            if (lr11xx_status != LR11XX_STATUS_OK) {
+            if ( lr11xx_status != LR11XX_STATUS_OK) {
 		    LOG_ERR("Faied to set gfsk modulation params.");
                 return LR11XX_RF_API_ERROR_CHIP_RADIO_REG;
 	        }
