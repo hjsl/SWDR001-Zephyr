@@ -253,7 +253,7 @@ static int lr11xx_init(const struct device *dev)
 	data->work.handler = lr11xx_work_cb;
 #elif CONFIG_LR11XX_EVENT_TRIGGER_OWN_THREAD
 	LOG_INF("Event trigger set in own thread.");
-	k_sem_init(&data->trig_sem, 0, K_SEM_MAX_LIMIT);
+	k_sem_init(&data->gpio_sem, 0, K_SEM_MAX_LIMIT);
 
 	k_thread_create(&data->thread, data->thread_stack, CONFIG_LR11XX_THREAD_STACK_SIZE,
 			(k_thread_entry_t)lr11xx_thread, data, NULL, NULL,
