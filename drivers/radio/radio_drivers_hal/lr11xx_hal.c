@@ -69,7 +69,7 @@ static void prv_lr11xx_hal_check_device_ready(const struct device *dev)
 		prv_lr11xx_hal_wait_on_busy(&lr11xx_cfg->busy);
 	} else {
 		// Busy is HIGH in sleep mode, wake-up the device with a small glitch on NSS
-		const struct spi_cs_control *ctrl = lr11xx_cfg->spi.config.cs;
+		const struct spi_cs_control *ctrl = &lr11xx_cfg->spi.config.cs;
 
 		gpio_pin_set_dt(&ctrl->gpio, 1);
 		gpio_pin_set_dt(&ctrl->gpio, 0);

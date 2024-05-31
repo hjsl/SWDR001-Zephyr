@@ -74,7 +74,7 @@ struct lr11xx_hal_context_data_t {
 #ifdef CONFIG_LR11XX_EVENT_TRIGGER_OWN_THREAD
 	K_THREAD_STACK_MEMBER(thread_stack, CONFIG_LR11XX_THREAD_STACK_SIZE);
 	struct k_thread thread;
-	struct k_sem trig_sem;
+	struct k_sem gpio_sem;
 #endif /* CONFIG_LR11XX_EVENT_TRIGGER_OWN_THREAD */
 #endif /* CONFIG_LR11XX_EVENT_TRIGGER */
 };
