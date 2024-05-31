@@ -16,7 +16,7 @@ The `samples` folder contains functional samples compatible with SWSD003 Semtech
 
 ## Installation
 
-This driver was written and tested for nrf-sdk v2.2.0
+This driver was written and tested for nrf-sdk v2.6.1
 
 To install, modify your project's `west.yml` and add the following sections:
 
@@ -43,7 +43,7 @@ Above command will clone `SWDR001-Zephyr` repository inside of `ncs/irnas/`. You
 
 ## Usage
 
-Compatible Device Tree bing for `lr11xx` needs to be added to DT file, for example:
+Compatible Device Tree binding for `lr11xx` needs to be added to DT file, for example:
 
 ```dts
 &spi2 {
@@ -82,10 +82,10 @@ Compatible Device Tree bing for `lr11xx` needs to be added to DT file, for examp
 };
 ```
 
-LR11XX device structure can them be accessed trough device binding:
+LR11XX device structure can then be accessed trough device binding:
 
 ```c
-const struct device *context = DEVICE_DT_GET(DT_NODELABEL(lr11xx));
+const struct device *dev = DEVICE_DT_GET(DT_NODELABEL(lr11xx));
 ```
 
 ## Development installation
