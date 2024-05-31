@@ -119,7 +119,7 @@ lr11xx_fw_update_status_t lr11xx_update_firmware(const struct device *context,
 	}
 
 	if (prv_lr11xx_is_fw_compatible_with_chip(fw_update, version_bootloader.fw) == false) {
-		LOG_ERR("Privded firmware is not supported on this chip");
+		LOG_ERR("Provided firmware is not supported on this chip");
 		return LR11XX_FW_UPDATE_UNSUPPORTED;
 	};
 

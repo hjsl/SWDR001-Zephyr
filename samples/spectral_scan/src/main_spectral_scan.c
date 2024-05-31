@@ -97,7 +97,7 @@ LOG_MODULE_REGISTER(main);
  * --- PRIVATE VARIABLES -------------------------------------------------------
  */
 
-const struct device *context = DEVICE_DT_GET(DT_NODELABEL(lr11xx));
+const struct device *dev = DEVICE_DT_GET(DT_NODELABEL(lr11xx));
 
 static uint16_t      levels[RSSI_LEVEL_NUM];
 const static uint8_t rssi_level_num = RSSI_LEVEL_NUM;
@@ -124,11 +124,11 @@ int main( void )
 
     LOG_INF( "===== LR11xx Spectral Scan example =====\n" );
 
-    apps_common_lr11xx_system_init( ( void* ) context );
+    apps_common_lr11xx_system_init( ( void* ) dev );
 
-    apps_common_lr11xx_fetch_and_print_version( ( void* ) context );
+    apps_common_lr11xx_fetch_and_print_version( ( void* ) dev );
 
-    apps_common_lr11xx_radio_init( ( void* ) context );
+    apps_common_lr11xx_radio_init( ( void* ) dev );
 
     print_configuration( );
 
@@ -147,7 +147,7 @@ int main( void )
         for( uint16_t i = 0; i < NB_SCAN; i++ )
         {
             k_sleep(K_USEC( DELAY_BETWEEN_EACH_INST_RSSI_FETCH_US ) );
-            ret = lr11xx_radio_get_rssi_inst( context, &result );
+            ret = lr11xx_radio_get_rssi_inst( dev, &result );
             if(ret)
             {
                 LOG_ERR("Failed to get rssi.");
@@ -163,7 +163,7 @@ int main( void )
         printk( "\n" );
 
         /* Switch to next channel */
-        ret = lr11xx_system_set_standby( context, LR11XX_SYSTEM_STANDBY_CFG_XOSC );
+        ret = lr11xx_system_set_standby( dev, LR11XX_SYSTEM_STANDBY_CFG_XOSC );
         if(ret)
         {
             LOG_ERR("Failed to set standby.");
@@ -189,14 +189,14 @@ void spectral_scan_start( uint32_t freq_hz )
 {
     int ret = 0;
     /* Set frequency */
-    ret = lr11xx_radio_set_rf_freq( context, freq_hz );
+    ret = lr11xx_radio_set_rf_freq( dev, freq_hz );
     if(ret)
     {
         LOG_ERR("Failed to set RF frequency.");
     }
 
     /* Set Radio in Rx continuous mode */
-    ret = lr11xx_radio_set_rx_with_timeout_in_rtc_step( context, RX_CONTINUOUS );
+    ret = lr11xx_radio_set_rx_with_timeout_in_rtc_step( dev, RX_CONTINUOUS );
     if(ret)
     {
         LOG_ERR("Failed to set RX ctn mode.");
