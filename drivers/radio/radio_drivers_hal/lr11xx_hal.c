@@ -124,11 +124,10 @@ lr11xx_hal_status_t lr11xx_hal_write(const void *context, const uint8_t *command
 
 		// add a incompressible delay to prevent trying to wake the radio before it is full
 		// asleep
-		k_busy_wait(1000); /* 1 ms */
-		return LR11XX_HAL_STATUS_OK;
+		k_busy_wait(500); /* 0.5 ms */
 	}
 
-	return prv_lr11xx_hal_wait_on_busy(&lr11xx_cfg->busy);
+	return LR11XX_HAL_STATUS_OK;
 }
 
 lr11xx_hal_status_t lr11xx_hal_direct_read(const void *context, uint8_t *data,
@@ -278,4 +277,33 @@ lr11xx_hal_status_t lr11xx_hal_wakeup(const void *context)
 	prv_lr11xx_hal_check_device_ready(lr11xx_dev);
 
 	return LR11XX_HAL_STATUS_OK;
+}
+
+lr11xx_hal_status_t lr11xx_hal_abort_blocking_cmd(const void *context)
+{
+	const struct device *lr11xx_dev = (const struct device *)context;
+	const struct lr11xx_hal_context_cfg_t *lr11xx_cfg = lr11xx_dev->config;
+
+	int ret;
+	uint8_t command[4] = { 0 };
+
+	const struct spi_buf tx_buf[] = {
+		{
+			.buf = (uint8_t *)command,
+			.len = sizeof(command),
+		}
+	};
+
+	const struct spi_buf_set tx = {
+		.buffers = tx_buf,
+		.count = ARRAY_SIZE(tx_buf),
+	};
+
+	ret = spi_write_dt(&lr11xx_cfg->spi, &tx);
+	if (ret) {
+		return LR11XX_HAL_STATUS_ERROR;
+	}
+
+	return LR11XX_HAL_STATUS_OK;
+	//return prv_lr11xx_hal_wait_on_busy(&lr11xx_cfg->busy);
 }
